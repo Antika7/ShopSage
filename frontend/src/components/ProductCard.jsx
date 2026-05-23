@@ -11,6 +11,20 @@ function getSourceStyle(source) {
   return SOURCE_STYLES[key] || { label: source, bg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-200' }
 }
 
+const SEARCH_URLS = {
+  amazon: (q) => `https://www.amazon.in/s?k=${encodeURIComponent(q)}`,
+  flipkart: (q) => `https://www.flipkart.com/search?q=${encodeURIComponent(q)}`,
+  myntra: (q) => `https://www.myntra.com/${encodeURIComponent(q)}`,
+  nykaa: (q) => `https://www.nykaa.com/search/result/?q=${encodeURIComponent(q)}`,
+}
+
+function getProductUrl(url, title, source) {
+  if (url && url !== '#') return url
+  const key = (source || '').toLowerCase()
+  const builder = SEARCH_URLS[key]
+  return builder ? builder(title) : `https://www.google.com/search?q=${encodeURIComponent(title + ' buy online')}`
+}
+
 function StarRating({ rating }) {
   if (!rating && rating !== 0) return null
   const value = parseFloat(rating)
@@ -64,7 +78,7 @@ function ProductImage({ src, alt, large }) {
 
 export default function ProductCard({ product, isBestPick }) {
   const sourceStyle = getSourceStyle(product.source)
-  const hasUrl = product.url && product.url !== '#'
+  const productUrl = getProductUrl(product.url, product.title, product.source)
 
   return (
     <div
@@ -156,23 +170,14 @@ export default function ProductCard({ product, isBestPick }) {
         <div className="flex-1" />
 
         {/* CTA */}
-        {hasUrl ? (
-          <a
-            href={product.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="block w-full text-center text-sm font-semibold text-white bg-sage-500 hover:bg-sage-600 rounded-lg py-2 transition-colors mt-1"
-          >
-            View Deal
-          </a>
-        ) : (
-          <button
-            disabled
-            className="block w-full text-center text-sm font-semibold text-gray-400 bg-gray-100 rounded-lg py-2 cursor-not-allowed mt-1"
-          >
-            View Deal
-          </button>
-        )}
+        <a
+          href={productUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full text-center text-sm font-semibold text-white bg-sage-500 hover:bg-sage-600 rounded-lg py-2 transition-colors mt-1"
+        >
+          View Deal
+        </a>
       </div>
     </div>
   )

@@ -11,6 +11,20 @@ function getSourceStyle(source) {
   return SOURCE_STYLES[key] || { label: source, bg: 'bg-gray-100', text: 'text-gray-700' }
 }
 
+const SEARCH_URLS = {
+  amazon: (q) => `https://www.amazon.in/s?k=${encodeURIComponent(q)}`,
+  flipkart: (q) => `https://www.flipkart.com/search?q=${encodeURIComponent(q)}`,
+  myntra: (q) => `https://www.myntra.com/${encodeURIComponent(q)}`,
+  nykaa: (q) => `https://www.nykaa.com/search/result/?q=${encodeURIComponent(q)}`,
+}
+
+function getProductUrl(url, title, source) {
+  if (url && url !== '#') return url
+  const key = (source || '').toLowerCase()
+  const builder = SEARCH_URLS[key]
+  return builder ? builder(title) : `https://www.google.com/search?q=${encodeURIComponent(title + ' buy online')}`
+}
+
 function StarRating({ rating }) {
   if (!rating && rating !== 0) return null
   const value = parseFloat(rating)
@@ -32,7 +46,7 @@ export default function BestPickCard({ bestPick, reasoning }) {
   if (!bestPick) return null
 
   const sourceStyle = getSourceStyle(bestPick.source)
-  const hasUrl = bestPick.url && bestPick.url !== '#'
+  const productUrl = getProductUrl(bestPick.url, bestPick.title, bestPick.source)
 
   return (
     <div className="bg-sage-50 rounded-xl shadow-md border-l-4 border-sage-500 border border-sage-100 overflow-hidden">
@@ -114,37 +128,28 @@ export default function BestPickCard({ bestPick, reasoning }) {
 
             {/* CTA */}
             <div className="pt-1">
-              {hasUrl ? (
-                <a
-                  href={bestPick.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 bg-sage-500 hover:bg-sage-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors text-sm"
+              <a
+                href={productUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-sage-500 hover:bg-sage-600 text-white font-semibold px-6 py-2.5 rounded-lg transition-colors text-sm"
+              >
+                Buy Now on {sourceStyle.label}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
                 >
-                  Buy Now on {sourceStyle.label}
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="w-4 h-4"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                    strokeWidth={2}
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
-                    />
-                  </svg>
-                </a>
-              ) : (
-                <button
-                  disabled
-                  className="inline-flex items-center gap-2 bg-gray-300 text-gray-500 font-semibold px-6 py-2.5 rounded-lg text-sm cursor-not-allowed"
-                >
-                  Buy Now on {sourceStyle.label}
-                </button>
-              )}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25"
+                  />
+                </svg>
+              </a>
             </div>
           </div>
         </div>
